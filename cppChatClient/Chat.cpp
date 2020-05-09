@@ -1,6 +1,7 @@
 #include "Chat.h"
 
 using namespace std;
+extern volatile bool work;
  
 bool Chat::LogIn(std::string userName) {
 	reciever = Socket(addr, port);
@@ -22,8 +23,13 @@ bool Chat::LogIn(std::string userName) {
 }
 
 void Chat::WaitForResponse() {
-	while (true) {
-		cout<<reciever.GetMessageFromServer()<<endl<<">";
+	while (work) {
+		string message = reciever.GetMessageFromServer();
+		cout<<message<<endl<<">";
+		if (message == "SERVER_OFF" || message == "NO_RECEIVE" ) {
+			cout<< "Exiting.." << endl;
+			work = false;
+		}
 	}
 }
 

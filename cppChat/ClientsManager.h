@@ -22,4 +22,6 @@ public:
         return clients[name];
     }
     void SendMessageToAll(string sender, string message);
+    void SendMessageTo(string sender,string receiver, string message);
+    void SendWhoIsOnlineInfo(string sender);
 };

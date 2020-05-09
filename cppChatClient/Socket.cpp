@@ -32,7 +32,7 @@ string Socket::GetMessageFromServer() {
 	ZeroMemory(buf,4096);
 	int byteRecieved = recv(sock, buf, 4096, 0);
 	if (byteRecieved <= 0) {
-		return "NO_RECIVE";
+		return "NO_RECEIVE";
 	}
 	else {
 		return string(buf, 0, byteRecieved);

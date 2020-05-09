@@ -4,6 +4,8 @@
 #include"Chat.h"
 using namespace std;
 
+volatile bool work = true;
+
 int main() {
 	Chat::TurnOnWinSockets();
 	Chat chat("127.0.0.1", 54000);
@@ -15,12 +17,10 @@ int main() {
 			break;
 		}
 	}
-	while (true) {
+	while (work) {
 		cout << ">";
 		getline(cin, input);
-		for (int i = 0; i < 20; i++) {
-			chat.SendMessageToServer(input);
-		}
+		chat.SendMessageToServer(input);
 	}
 	Chat::TurnOffWinSockets();
 }

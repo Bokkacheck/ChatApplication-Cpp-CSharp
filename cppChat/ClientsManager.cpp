@@ -19,7 +19,7 @@ bool ClientsManager::RegisterClient(std::string name, ClientSocket* sock)
 bool ClientsManager::RemoveClient(std::string name) {
 	auto it = clients.find(name);
 	if (it != clients.end()) {
-		it->second->SendMessageToClient("Successful logout");
+		it->second->SendMessageToClient("LOG_OUT_OK");
 		delete it->second;
 		clients.erase(it);
 		SendMessageToAll(name, "USER_LOGOUT:-:" + name);
@@ -35,14 +35,14 @@ void ClientsManager::SendMessageToAll(string sender, string message) {
 	}
 }
 void ClientsManager::SendMessageTo(string sender,string receiver, string message) {
-	ClientSocket* recieverSock = clients[receiver];
-	if (recieverSock) {
-		recieverSock->SendMessageToClient(message);
+	map<string,ClientSocket*>::iterator client = clients.find(receiver);
+	if (client!=clients.end()) {
+		client->second->SendMessageToClient(message);
 	}
 	else {
-		ClientSocket* senderSock = clients[sender];
-		if (senderSock) {
-			senderSock->SendMessageToClient("User is not connected");
+		client = clients.find(sender);
+		if (client != clients.find(sender)) {
+			client->second->SendMessageToClient("NO_USER_FOUND");
 		}
 	}
 }
@@ -51,7 +51,7 @@ void ClientsManager::SendWhoIsOnlineInfo(string sender) {
 	for (const auto &it : clients) {
 		res += it.first +"\n";
 	}
-	SendMessageTo("sever", sender, res);
+	SendMessageTo(":s.:.e:r.:.v:e.:.r:", sender, res);
 }
 
 

@@ -1,7 +1,7 @@
 #include<iostream>
 #include<future>
+#include<thread>
 #include<vector>
-#include<list>
 #include<thread>
 #include"ServerSocket.h"
 #include"ClientsManager.h"
@@ -9,32 +9,26 @@
 using namespace std;
 
 void HandleRequest(ClientSocket* sock);
-void FuturesClean();
 void ServerQuitMessage();
 vector<string> Split(string original, const string& regex);
 
-list<future<void>*>* futures;
+const int maxThreadCount = 64;
+volatile int threadCount = 0;
 
 int main() {
-	futures = new list<future<void>*>();
-	auto futuresClean = async(launch::async, FuturesClean);
 	ServerSocket serverSocket("127.0.0.1",54000);
 	atexit(ServerQuitMessage);
 	while (true) {
-		ClientSocket *sock = serverSocket.GetClient();
-		future<void>* f = new future<void>(async(launch::async, HandleRequest, move(sock)));
-		futures->push_back(f);
+		if (threadCount < maxThreadCount) {
+			thread(HandleRequest, serverSocket.GetClient()).detach();
+		}
 	}
 }
 
-void ServerQuitMessage() {
-	ClientsManager::get()->SendMessageToAll("", "SERVER_OFF");
-}
-
 void HandleRequest(ClientSocket* sock) {
+	threadCount++;
 	string message = sock->GetMessageFromClient();
-	vector<string> request = Split(message, ":-:");
-	cout << message << endl;
+	vector<string> request = Split(message, ":-:");   
 	if (request[0] == "LogIn") {
 		ClientsManager::get()->RegisterClient(request[1],sock);
 	}
@@ -56,21 +50,11 @@ void HandleRequest(ClientSocket* sock) {
 		}
 		delete sock;
 	}
+	threadCount--;
 }
 
-void FuturesClean() {
-	while (true) {
-		this_thread::sleep_for(chrono::seconds(5));
-		for (auto it = futures->begin(); it != futures->end();) {
-			if ((*it)->wait_for(chrono::seconds(0)) == future_status::ready) {
-				(*it)->get();
-				it = futures->erase(it);
-			}
-			else {
-				++it;
-			}
-		}
-	}
+void ServerQuitMessage() {
+	ClientsManager::get()->SendMessageToAll("", "SERVER_OFF");
 }
 
 vector<string> Split(string original,const string& regex) {

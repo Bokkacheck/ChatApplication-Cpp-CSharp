@@ -3,8 +3,10 @@
 
 using namespace std;
 
+const string Message::sep = ":-:";
+
 Message::Message(string message) {
-	vector<string> splited = Split(message, ":-:");
+	vector<string> splited = Split(message, sep);
 	request = splited[0];
 	sender = splited[1];
 	receiver = splited[2];

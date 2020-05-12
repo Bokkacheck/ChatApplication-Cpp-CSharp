@@ -11,7 +11,6 @@ using namespace std;
 
 void HandleRequest(ClientSocket* sock);
 void ServerQuitMessage();
-vector<string> Split(string original, const string& regex);
 
 const int maxThreadCount = 64;
 volatile int threadCount = 0;
@@ -28,27 +27,25 @@ int main(char* argv[],int argc) {
 
 void HandleRequest(ClientSocket* sock) {
 	threadCount++;
-	string message = sock->GetMessageFromClient();
-	Message requestM(message);
-	cout << requestM.request << " " << requestM.sender << " " << requestM.receiver << " " << requestM.data << " " << endl;
-	vector<string> request = Split(message, ":-:");   
-	if (request[0] == "LogIn") {
-		ClientsManager::get()->RegisterClient(request[1],sock);
+	Message req = sock->GetMessageFromClient();
+	if (req.request == "LogIn") {
+		ClientsManager::get()->RegisterClient(req.sender,sock);
 	}
 	else {
-		if (request[0] == "MessageTo") {
-			ClientsManager::get()->SendMessageTo(request[1],request[2], request[3]);
+		if (req.request == "MessageTo") {
+			cout << (string)req << endl;
+			ClientsManager::get()->SendMessageTo(req.sender,req.receiver, req.data);
 		}
-		else if (request[0] == "MessageToAll") {
-			ClientsManager::get()->SendMessageToAll(request[1], request[2]);
+		else if (req.request == "MessageToAll") {
+			ClientsManager::get()->SendMessageToAll(req.sender, req.data);
 		}
-		else if (request[0] == "WhoIsOnline") {
-			ClientsManager::get()->SendWhoIsOnlineInfo(request[1]);
+		else if (req.request == "WhoIsOnline") {
+			ClientsManager::get()->SendOnlineInfo(req.sender);
 		}
-		else if (request[0] == "LogOut") {
-			ClientsManager::get()->RemoveClient(request[1]);
+		else if (req.request == "LogOut") {
+			ClientsManager::get()->RemoveClient(req.sender);
 		}
-		else if (request[0] == "Exit") {
+		else if (req.request == "Exit") {
 			exit(0);
 		}
 		delete sock;
@@ -57,18 +54,5 @@ void HandleRequest(ClientSocket* sock) {
 }
 
 void ServerQuitMessage() {
-	ClientsManager::get()->SendMessageToAll("", "SERVER_OFF");
-}
-
-vector<string> Split(string original,const string& regex) {
-	vector<string> res;
-	size_t pos = 0;
-	string token;
-	while ((pos = original.find(regex)) != string::npos) {
-		token = original.substr(0, pos);
-		res.push_back(token);
-		original.erase(0, pos + regex.length());
-	}
-	res.push_back(original);
-	return res;
+	ClientsManager::get()->ServerQuitInfo();
 }

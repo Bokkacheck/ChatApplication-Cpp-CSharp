@@ -33,7 +33,7 @@ namespace cSharpClient
         {
             while (true)
             {
-                byte[] res = new byte[4069];
+                byte[] res = new byte[4096];
                 int size = reciever.Receive(res);
                 object[] args = new Object[1];
                 Invoke(new Action(() => this.ResponseServer(Encoding.ASCII.GetString(res,0,size-1))));
@@ -42,24 +42,24 @@ namespace cSharpClient
         void ResponseServer(string message)
         {
             string[] res = message.Split(new[] { ":-:" }, StringSplitOptions.None);
-            txtMessages.Text += res.Length + Environment.NewLine;
             if(res[0] == "ONLINE_USERS")
             {
-                for(int i = 1; i < res.Length; i++)
+                string[] users = res[3].Split(':');
+                for (int i = 0; i < users.Length; i++)
                 {
                     if(res[i] != txtUserName.Text)
                     {
-                        lbOnlineUsers.Items.Add(res[i]);
+                        lbOnlineUsers.Items.Add(users[i]);
                     }
                 }
             }
             else if(res[0] == "NEW_ONLINE_USER")
             {
-                lbOnlineUsers.Items.Add(res[1]);
+                lbOnlineUsers.Items.Add(res[3]);
             }
             else
             {
-                txtMessages.Text += message + "\n";
+                txtMessages.Text += message + Environment.NewLine;
             }
         }
 
@@ -67,13 +67,13 @@ namespace cSharpClient
         {
             reciever = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             reciever.Connect("127.0.0.1", 54000);
-            reciever.Send(Encoding.ASCII.GetBytes("LogIn:-:bojan:-::-:"));
+            reciever.Send(Encoding.ASCII.GetBytes("LogIn:-:"+txtUserName.Text+":-::-:"));
             byte[] bytes = new byte[4069];
             int size = reciever.Receive(bytes);
-            string res = Encoding.ASCII.GetString(bytes,0,size-1);
-            if (res == "LOGIN_OK")
+            string[] res = Encoding.ASCII.GetString(bytes,0,size-1).Split(new[] { ":-:" }, StringSplitOptions.None);
+            MessageBox.Show(res[0]);
+            if (res[0] == "LOGIN_OK")
             {
-                MessageBox.Show("Succesfully logged");
                 Task t = new Task(WaitForMessages);
                 t.Start();
                 panel1.Hide();

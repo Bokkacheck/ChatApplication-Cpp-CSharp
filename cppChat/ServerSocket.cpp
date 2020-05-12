@@ -1,6 +1,5 @@
 #include "ServerSocket.h"
 #include<iostream>
-#include<thread>
 #include<memory>
 
 using namespace std;
@@ -45,6 +44,5 @@ ClientSocket* ServerSocket::GetClient() {
 	if (clientSocket == -1) {
 		cout <<"Error: "+ WSAGetLastError() << endl;
 	}
-	//unique_ptr<SOCKET> ps = make_unique<SOCKET>(clientSocket);
 	return new ClientSocket(clientSocket);
 }

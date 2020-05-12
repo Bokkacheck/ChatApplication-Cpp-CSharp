@@ -5,6 +5,7 @@
 #include<thread>
 #include"ServerSocket.h"
 #include"ClientsManager.h"
+#include"Message.h"
 
 using namespace std;
 
@@ -15,7 +16,7 @@ vector<string> Split(string original, const string& regex);
 const int maxThreadCount = 64;
 volatile int threadCount = 0;
 
-int main() {
+int main(char* argv[],int argc) {
 	ServerSocket serverSocket("127.0.0.1",54000);
 	atexit(ServerQuitMessage);
 	while (true) {
@@ -28,6 +29,8 @@ int main() {
 void HandleRequest(ClientSocket* sock) {
 	threadCount++;
 	string message = sock->GetMessageFromClient();
+	Message requestM(message);
+	cout << requestM.request << " " << requestM.sender << " " << requestM.receiver << " " << requestM.data << " " << endl;
 	vector<string> request = Split(message, ":-:");   
 	if (request[0] == "LogIn") {
 		ClientsManager::get()->RegisterClient(request[1],sock);

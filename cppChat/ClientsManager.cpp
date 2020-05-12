@@ -37,19 +37,20 @@ void ClientsManager::SendMessageToAll(string sender, string message) {
 void ClientsManager::SendMessageTo(string sender,string receiver, string message) {
 	map<string,ClientSocket*>::iterator client = clients.find(receiver);
 	if (client!=clients.end()) {
+		string response = "MESSAGE:-:" + sender + ":-:" + message;
 		client->second->SendMessageToClient(message);
 	}
 	else {
 		client = clients.find(sender);
-		if (client != clients.find(sender)) {
+		if (client != clients.end()) {
 			client->second->SendMessageToClient("NO_USER_FOUND");
 		}
 	}
 }
 void ClientsManager::SendWhoIsOnlineInfo(string sender) {
-	string res = "";
+	string res = "ONLINE_USERS";
 	for (const auto &it : clients) {
-		res += it.first +"\n";
+		res += ":-:" + it.first;
 	}
 	SendMessageTo(":s.:.e:r.:.v:e.:.r:", sender, res);
 }

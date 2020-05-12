@@ -141,11 +141,13 @@
   <ItemGroup>
     <ClCompile Include="ClientsManager.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Message.cpp" />
     <ClCompile Include="ServerSocket.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ClientsManager.h" />
     <ClInclude Include="ClientSocket.h" />
+    <ClInclude Include="Message.h" />
     <ClInclude Include="ServerSocket.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

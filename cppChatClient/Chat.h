@@ -6,8 +6,8 @@
 class Chat
 {
 private:
-	Socket *sender;
-	Socket *reciever;
+	Socket *sender = nullptr;
+	Socket *reciever = nullptr;
 	std::string addr;
 	int port;
 	std::string userName;
@@ -19,6 +19,7 @@ public:
 		sender = new Socket(addr, port);
 		sender->SendMessageToServer(message);
 		delete sender;
+		sender = nullptr;
 	}
 	std::string GetMessageFromServer() {
 		reciever->GetMessageFromServer();

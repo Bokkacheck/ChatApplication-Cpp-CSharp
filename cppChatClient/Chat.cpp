@@ -34,6 +34,7 @@ void Chat::WaitForResponse() {
 		}
 	}
 	delete reciever;
+	reciever = nullptr;
 }
 
 void Chat::TurnOnWinSockets() {
